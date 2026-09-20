@@ -1,0 +1,157 @@
+{
+  "round": 1242,
+  "lastWeek": [
+    2,
+    4,
+    10,
+    16,
+    31,
+    41
+  ],
+  "top10": [
+    13,
+    15,
+    16,
+    27,
+    31,
+    28,
+    19,
+    23,
+    38,
+    1
+  ],
+  "middle10": [
+    9,
+    20,
+    22,
+    32,
+    41,
+    6,
+    7,
+    8,
+    10,
+    12
+  ],
+  "recommend": {
+    "games": [
+      [
+        2,
+        8,
+        20,
+        26,
+        34,
+        40
+      ],
+      [
+        3,
+        4,
+        17,
+        21,
+        36,
+        40
+      ],
+      [
+        10,
+        14,
+        17,
+        26,
+        27,
+        30
+      ],
+      [
+        5,
+        16,
+        17,
+        24,
+        35,
+        41
+      ],
+      [
+        5,
+        7,
+        21,
+        31,
+        36,
+        43
+      ]
+    ],
+    "carryoverSource": {
+      "round": 1242,
+      "date": "2026-09-19",
+      "numbers": [
+        2,
+        4,
+        10,
+        16,
+        31,
+        41
+      ]
+    },
+    "neglectedWindow": {
+      "draws": 26,
+      "quantile": 0.25
+    },
+    "neglectedPool": [
+      {
+        "number": 5,
+        "count": 0,
+        "probability": 0
+      },
+      {
+        "number": 26,
+        "count": 1,
+        "probability": 0.038461538461538464
+      },
+      {
+        "number": 27,
+        "count": 1,
+        "probability": 0.038461538461538464
+      },
+      {
+        "number": 3,
+        "count": 2,
+        "probability": 0.07692307692307693
+      },
+      {
+        "number": 14,
+        "count": 2,
+        "probability": 0.07692307692307693
+      },
+      {
+        "number": 17,
+        "count": 2,
+        "probability": 0.07692307692307693
+      },
+      {
+        "number": 21,
+        "count": 2,
+        "probability": 0.07692307692307693
+      },
+      {
+        "number": 23,
+        "count": 2,
+        "probability": 0.07692307692307693
+      },
+      {
+        "number": 30,
+        "count": 2,
+        "probability": 0.07692307692307693
+      },
+      {
+        "number": 33,
+        "count": 2,
+        "probability": 0.07692307692307693
+      },
+      {
+        "number": 35,
+        "count": 2,
+        "probability": 0.07692307692307693
+      },
+      {
+        "number": 40,
+        "count": 2,
+        "probability": 0.07692307692307693
+      }
+    ]
+  }
+}

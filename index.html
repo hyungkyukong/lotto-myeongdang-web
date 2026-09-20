@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>로또 명당 - 이번주 예상번호</title>
+<style>
+  :root {
+    --wine-light: #4B0F1F;
+    --wine-mid: #2E0A13;
+    --wine-dark: #1F0710;
+    --gold: #D8B46A;
+    --gold-dim: #936945;
+    --cream: #F4F1EA;
+    --yellow: #FBC400;
+    --blue: #69C8F2;
+    --red: #FF7272;
+    --gray: #AAAAAA;
+    --green: #B0D840;
+    --ink: #1A1440;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 48px;
+    font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "맑은 고딕", sans-serif;
+    background: radial-gradient(ellipse at 50% 0%, var(--wine-light), var(--wine-mid) 60%, var(--wine-dark));
+    color: var(--cream);
+    min-height: 100vh;
+  }
+  .wrap { max-width: 520px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 20px; }
+  header .brand { color: var(--gold); font-size: 15px; letter-spacing: 0.05em; }
+  header h1 { margin: 6px 0 0; font-size: 24px; color: var(--cream); }
+  .card {
+    background: rgba(244,241,234,0.06);
+    border: 1px solid rgba(216,180,106,0.35);
+    border-radius: 16px;
+    padding: 18px 16px;
+    margin-bottom: 16px;
+  }
+  .card h2 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    color: var(--gold);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .balls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .ball {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px;
+    color: var(--ink);
+    box-shadow: inset -3px -4px 6px rgba(0,0,0,0.25), inset 2px 3px 4px rgba(255,255,255,0.45), 0 3px 6px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .ball.y { background: var(--yellow); }
+  .ball.b { background: var(--blue); }
+  .ball.r { background: var(--red); color: #fff; }
+  .ball.gy { background: var(--gray); }
+  .ball.g { background: var(--green); }
+  .ball.marked::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+  }
+  .game-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+  .game-row .label { width: 44px; font-size: 12px; color: rgba(244,241,234,0.65); flex-shrink: 0; }
+  .legend { font-size: 12px; color: rgba(244,241,234,0.6); margin-top: 10px; line-height: 1.6; }
+  .legend .dot {
+    display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+    border: 2px solid var(--gold); vertical-align: middle; margin-right: 4px;
+  }
+  #regen {
+    display: block; margin: 14px auto 0;
+    background: linear-gradient(180deg, var(--gold), var(--gold-dim));
+    color: var(--ink); border: none; border-radius: 999px;
+    padding: 10px 22px; font-size: 14px; font-weight: 700;
+    cursor: pointer;
+  }
+  #regen:active { transform: translateY(1px); }
+  .meta { font-size: 12px; color: rgba(244,241,234,0.55); text-align: center; margin-top: 4px; }
+  .disclaimer {
+    font-size: 12px; color: rgba(244,241,234,0.65);
+    border-top: 1px solid rgba(216,180,106,0.25);
+    margin-top: 24px; padding-top: 14px; line-height: 1.6; text-align: center;
+  }
+  .loading { text-align: center; color: rgba(244,241,234,0.6); padding: 40px 0; }
+  a.channel-link {
+    display: block; text-align: center; color: var(--gold);
+    text-decoration: none; font-size: 14px; margin-top: 18px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">로또 명당</div>
+      <h1 id="title">이번주 예상번호</h1>
+    </header>
+
+    <div id="content" class="loading">불러오는 중...</div>
+
+    <div class="disclaimer">
+      ※ 로또는 매 회차 완전 무작위 추첨입니다. 과거 출현 빈도와 이월수·소외수 기준은
+      통계적 참고용일 뿐이며, 어떤 조합도 실제 당첨 확률을 다른 조합보다 높이지 않고
+      당첨을 보장하지 않습니다.
+    </div>
+  </div>
+
+<script>
+const RANGE_CLASS = (n) => n <= 10 ? 'y' : n <= 20 ? 'b' : n <= 30 ? 'r' : n <= 40 ? 'gy' : 'g';
+
+function ball(n, marked) {
+  return `<div class="ball ${RANGE_CLASS(n)}${marked ? ' marked' : ''}">${n}</div>`;
+}
+
+function render(data) {
+  const nextRound = data.round + 1;
+  document.getElementById('title').textContent = `${nextRound}회 예상번호`;
+
+  const carrySet = new Set(data.recommend.carryoverSource.numbers);
+  const neglectedSet = new Set(data.recommend.neglectedPool.map(x => x.number));
+
+  const lastWeekBalls = data.lastWeek
+    .slice().sort((a, b) => a - b)
+    .map(n => ball(n, false)).join('');
+
+  const gamesHtml = data.recommend.games.map((game, i) => {
+    const balls = [...game].sort((a, b) => a - b)
+      .map(n => ball(n, carrySet.has(n) || neglectedSet.has(n))).join('');
+    return `<div class="game-row"><span class="label">게임 ${i + 1}</span>${balls}</div>`;
+  }).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <h2>지난주 ${data.round}회 당첨번호</h2>
+      <div class="balls">${lastWeekBalls}</div>
+    </div>
+    <div class="card">
+      <h2>이번주 추천 조합 5게임</h2>
+      <div id="games">${gamesHtml}</div>
+      <div class="legend">
+        <span class="dot"></span>이월수(지난주 당첨번호)·소외수(최근 출현 적은 번호) 하이라이트 — 나머지는 무작위
+      </div>
+      <button id="regen">다시 뽑기</button>
+      <div class="meta">회차가 바뀌면 매주 새로 계산됩니다.</div>
+    </div>
+  `;
+
+  document.getElementById('regen').addEventListener('click', () => {
+    document.getElementById('games').innerHTML = regenerate(data).map((game, i) => {
+      const balls = [...game].sort((a, b) => a - b)
+        .map(n => ball(n, carrySet.has(n) || neglectedSet.has(n))).join('');
+      return `<div class="game-row"><span class="label">게임 ${i + 1}</span>${balls}</div>`;
+    }).join('');
+  });
+}
+
+// generateGames()의 조합 단계만 클라이언트에서 재현한다 - 이월수/소외수 풀은 서버에서
+// 계산해 온 값을 그대로 쓰고, 무작위 선택만 다시 뽑기마다 새로 돈다
+// (lotto-analyzer/lib/lottoRecommender.js와 동일 로직).
+function pickRandom(pool, n) {
+  const copy = [...pool];
+  const picked = [];
+  for (let i = 0; i < n && copy.length > 0; i++) {
+    const idx = Math.floor(Math.random() * copy.length);
+    picked.push(copy.splice(idx, 1)[0]);
+  }
+  return picked;
+}
+
+function regenerate(data) {
+  const carryoverPool = [...data.recommend.carryoverSource.numbers].sort((a, b) => a - b);
+  const neglectedNumbers = data.recommend.neglectedPool.map(x => x.number);
+  const gamesCount = data.recommend.games.length;
+  const games = [];
+  for (let i = 0; i < gamesCount; i++) {
+    const carry = carryoverPool[i % carryoverPool.length];
+    const chosen = new Set([carry]);
+    const kNeglected = 2 + Math.floor(Math.random() * 2);
+    const candidates = neglectedNumbers.filter(n => !chosen.has(n));
+    for (const n of pickRandom(candidates, kNeglected)) chosen.add(n);
+    const rest = [];
+    for (let n = 1; n <= 45; n++) if (!chosen.has(n)) rest.push(n);
+    for (const n of pickRandom(rest, 6 - chosen.size)) chosen.add(n);
+    games.push([...chosen]);
+  }
+  return games;
+}
+
+fetch('./data.json?_=' + Date.now())
+  .then(r => r.json())
+  .then(render)
+  .catch(() => {
+    document.getElementById('content').innerHTML =
+      '<div class="loading">데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.</div>';
+  });
+</script>
+</body>
+</html>
